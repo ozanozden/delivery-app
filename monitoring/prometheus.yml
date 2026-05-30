@@ -1,0 +1,24 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'restaurant-finder'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:8080']
+    labels:
+      application: 'restaurant-finder'
+      technology: 'postgis'
+
+  - job_name: 'driver-tracker'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:8081']
+    labels:
+      application: 'driver-tracker'
+      technology: 'redis-geo'
+
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']

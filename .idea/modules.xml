@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/driver-tracker/geospatial-comparison.driver-tracker.main.iml" filepath="$PROJECT_DIR$/.idea/modules/driver-tracker/geospatial-comparison.driver-tracker.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/restaurant-finder/geospatial-comparison.restaurant-finder.main.iml" filepath="$PROJECT_DIR$/.idea/modules/restaurant-finder/geospatial-comparison.restaurant-finder.main.iml" />
+    </modules>
+  </component>
+</project>

@@ -1,0 +1,16 @@
+dependencies {
+    // PostGIS
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.postgresql:postgresql'
+    implementation 'org.hibernate.orm:hibernate-spatial:6.4.4.Final'
+    implementation 'org.flywaydb:flyway-core'
+
+    // MongoDB
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+
+    // Validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // HTTP Client for OSM
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+}

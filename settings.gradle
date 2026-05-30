@@ -1,0 +1,4 @@
+rootProject.name = 'geospatial-comparison'
+
+include 'restaurant-finder'
+include 'driver-tracker'
