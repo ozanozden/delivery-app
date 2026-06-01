@@ -1,5 +1,6 @@
 package com.learn.restaurants.web;
 
+import com.learn.restaurants.application.MenuBulkService;
 import com.learn.restaurants.application.MenuRepository;
 import com.learn.restaurants.domain.Menu;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -12,12 +13,15 @@ public class MenuController {
 
     private final MenuRepository postgresRepository;
     private final MenuRepository mongoRepository;
+    private final MenuBulkService menuBulkService;
 
     public MenuController(
             @Qualifier("postgresMenuRepository") MenuRepository postgresRepository,
-            @Qualifier("mongoMenuRepository") MenuRepository mongoRepository) {
+            @Qualifier("mongoMenuRepository") MenuRepository mongoRepository,
+            MenuBulkService menuBulkService) {
         this.postgresRepository = postgresRepository;
         this.mongoRepository = mongoRepository;
+        this.menuBulkService = menuBulkService;
     }
 
     @PostMapping("/postgres/{restaurantId}")
@@ -60,5 +64,18 @@ public class MenuController {
     public ResponseEntity<String> deleteMenuMongo(@PathVariable Long restaurantId) {
         mongoRepository.deleteMenu(restaurantId);
         return ResponseEntity.ok("Menu deleted from MongoDB");
+    }
+
+    // Bulk operations for benchmarking
+    @PostMapping("/bulk/generate")
+    public ResponseEntity<MenuBulkService.BulkGenerationResult> generateAllMenus() {
+        MenuBulkService.BulkGenerationResult result = menuBulkService.generateMenusForAllRestaurants();
+        return ResponseEntity.ok(result);
+    }
+
+    @DeleteMapping("/bulk/clear")
+    public ResponseEntity<String> clearAllMenus() {
+        menuBulkService.clearAllMenus();
+        return ResponseEntity.ok("All menus cleared from both databases");
     }
 }

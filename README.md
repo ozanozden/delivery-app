@@ -30,17 +30,92 @@ A hands-on learning project comparing **PostGIS vs Redis GEO** for geospatial qu
 
 ## 📊 Performance Benchmarks
 
-**Menu Read Performance (100,000 requests, 10 concurrent):**
+> **Note:** Benchmarks conducted on local development machine (Docker Desktop, macOS) using Apache Bench with professional testing methodology. Results demonstrate relative performance characteristics and scaling behavior. Production performance will vary based on infrastructure, but relative differences remain consistent.
+>
+> **Important:** Close all background applications before running benchmarks. System load significantly affects results (clean system showed 3.6x improvement for PostgreSQL).
+>
+> **Full Report:** [`BENCHMARK_SUMMARY.md`](./BENCHMARK_SUMMARY.md) | **Methodology:** [`benchmarks/README.md`](./benchmarks/README.md)
 
-| Database | Requests/sec | Avg Latency | p50 | p95 | p99 | Max |
-|----------|--------------|-------------|-----|-----|-----|-----|
-| **MongoDB** | **4,169** | **2.4ms** | 2ms | 4ms | 8ms | 46ms |
-| **PostgreSQL JSONB** | 1,599 | 6.2ms | 5ms | 13ms | 22ms | 187ms |
+### Test Methodology
 
-**Key Findings:**
-- MongoDB is **2.6x faster** for simple document retrieval by indexed field
-- MongoDB has **more predictable latency** (tighter distribution, better p99)
-- PostgreSQL JSONB wins for **complex queries** joining geospatial + JSON data
+- **Concurrency levels:** c=1 (baseline), c=10 (typical), c=50-200 (stress)
+- **Cache scenarios:** Warm (pre-heated) and cold (post-restart)
+- **Dataset:** 766 restaurants, 20,675 menu items
+- **Metrics:** Throughput (req/s), latency percentiles (p50, p95, p99)
+
+Full methodology: [`benchmarks/README.md`](./benchmarks/README.md)
+
+### Simple Document Retrieval (Repeated Access, 100K requests)
+
+**Warm Cache:**
+
+| Database | c=1 | c=10 | c=50 | c=100 | c=200 | Best p99 |
+|----------|-----|------|------|-------|-------|----------|
+| **MongoDB** | 443 req/s | **2,252 req/s** | **2,332 req/s** | 2,202 req/s | 2,139 req/s | **5ms** (c=1) |
+| PostgreSQL JSONB | 435 req/s | 1,623 req/s | 1,589 req/s | 1,608 req/s | 1,613 req/s | 5ms (c=1) |
+
+**Cold Cache (c=10):**
+- MongoDB: 2,358 req/s (p99: 11ms)
+- PostgreSQL JSONB: 1,426 req/s (p99: 17ms)
+
+**Winner:** MongoDB (1.4x faster at c=10, 1.5x at c=50)
+
+**Key Observations:**
+- MongoDB peaks at c=50 (2,332 req/s) then slightly degrades at higher concurrency
+- PostgreSQL scales to c=10 then plateaus around 1,600 req/s
+- Both databases maintain excellent p99 latency (< 20ms) up to c=10
+- MongoDB advantage reduces with clean system (1.4x vs 3.4x with background apps)
+
+### Random Access Pattern (Realistic Usage)
+
+| Database | c=10 Req/s | c=50 Req/s | p99 Latency |
+|----------|-----------|-----------|-------------|
+| **MongoDB** | **~990** | **~720** | 90ms |
+| PostgreSQL JSONB | ~590 | ~610 | 120ms |
+
+**Winner:** MongoDB (1.7x faster at c=10, 1.2x at c=50)
+
+### Complex Search Queries (c=20)
+
+| Query Type | PostgreSQL | MongoDB | Winner |
+|------------|-----------|---------|--------|
+| Price filter (< €15) | 2.5 req/s (400ms) | **10 req/s (100ms)** | MongoDB (4x) |
+| Allergen-free items | 3.2 req/s (312ms) | **5.3 req/s (189ms)** | MongoDB (1.7x) |
+| Text search (Pizza) | 3.9 req/s (254ms) | **21 req/s (47ms)** | MongoDB (5.4x) |
+| Count aggregation | 1.7 req/s (602ms) | **58 req/s (17ms)** | MongoDB (35x) |
+
+**Winner:** MongoDB aggregation pipeline significantly outperforms PostgreSQL `jsonb_array_elements`
+
+### Key Findings
+
+✅ **MongoDB excels at:**
+- Simple document retrieval (2-4x faster)
+- Aggregation operations (5-35x faster)
+- Predictable latency (tighter p99 distribution)
+- Native document operations
+
+✅ **PostgreSQL JSONB excels at:**
+- Complex JOINs with geospatial data (see example below)
+- ACID transactions
+- SQL ecosystem compatibility
+- Existing PostgreSQL infrastructure
+
+### Running Benchmarks Yourself
+
+```bash
+# Quick verification (30 seconds)
+./benchmarks/quick-test.sh
+
+# Full professional suite (15-20 minutes, generates report)
+./benchmarks/run-all-pro.sh
+
+# Individual tests
+./benchmarks/01-simple-lookup-pro.sh    # Cache + multi-concurrency
+./benchmarks/02-random-access-pro.sh    # Realistic patterns
+./benchmarks/04-search-queries-pro.sh   # Complex queries
+```
+
+See [`benchmarks/README.md`](./benchmarks/README.md) for detailed methodology and [`benchmarks/QUICK_START.md`](./benchmarks/QUICK_START.md) for usage guide.
 
 ### When PostgreSQL JSONB Wins
 
@@ -207,6 +282,7 @@ ab -n 100000 -c 10 http://localhost:8080/api/menus/postgres/1
 
 ## 🔮 Future Enhancements
 
+- [ ] **Automated Testing** - Unit, integration, and E2E tests (see [`TESTING_TODO.md`](./TESTING_TODO.md))
 - [ ] **Redis Caching Layer** for menus (cache-aside pattern, invalidate on update)
 - [ ] **Performance Harness** (JMeter test plans, Grafana dashboards)
 - [ ] **Horizontal Scaling Demo** (Redis Cluster geo-sharding, PostgreSQL read replicas)
