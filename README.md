@@ -2,7 +2,7 @@
 
 A hands-on learning project comparing **PostGIS vs Redis GEO** for geospatial queries and **PostgreSQL JSONB vs MongoDB** for document storage, built as an Uber Eats-style delivery application.
 
-[![Java](https://img.shields.io/badge/Java-17-orange.svg)](https://openjdk.org/)
+[![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.org/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.5-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue.svg)](https://www.postgresql.org/)
 [![Redis](https://img.shields.io/badge/Redis-7-red.svg)](https://redis.io/)
@@ -59,7 +59,7 @@ WHERE r.cuisine = 'Italian'
 
 ## 🛠️ Tech Stack
 
-- **Java 17** + **Spring Boot 3.2.5**
+- **Java 21** + **Spring Boot 3.2.5**
 - **PostgreSQL 15** + **PostGIS 3.3** (geospatial queries, JSONB storage)
 - **Redis 7** (driver tracking, future caching layer)
 - **MongoDB 7** (document-oriented menu storage)
@@ -69,7 +69,7 @@ WHERE r.cuisine = 'Italian'
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Java 17+
+- Java 21+
 - Docker Desktop
 - (Optional) Apache Bench for performance testing
 
